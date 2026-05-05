@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
+using TRex;
 
 namespace TRex
 {
     public partial class TRexMainClass : Form
     {
+        private DatabaseManager db;
+
         bool jumping = false;
         bool isGameOver = false;
         Random random = new Random();
@@ -22,8 +26,8 @@ namespace TRex
         public TRexMainClass()
         {
             InitializeComponent();
+            db = new DatabaseManager();
 
-            // 🔥 IMPORTANT
             this.DoubleBuffered = true;
             this.KeyPreview = true;
 
@@ -46,6 +50,10 @@ namespace TRex
             k = 1;
 
             txtScoreLabel.Text = "Score: " + score;
+
+            HighScoreLabel.Visible = false;
+            HighScoreLabel.ForeColor = Color.Black;
+
             trexPictureBox.Image = TRex_RunnerGame.Properties.Resources.running;
             isGameOver = false;
             trexPictureBox.Top = 337;
@@ -92,6 +100,23 @@ namespace TRex
                     {
                         gameTimer.Stop();
                         trexPictureBox.Image = TRex_RunnerGame.Properties.Resources.dead;
+
+                        int oldHighScore = db.GetHighScore();
+                        db.SaveScore(score);
+
+                        if (score > oldHighScore)
+                        {
+                            HighScoreLabel.Text = "NEW HIGH SCORE! " + score;
+                            HighScoreLabel.ForeColor = Color.Goldenrod;
+                        }
+                        else
+                        {
+                            HighScoreLabel.Text = "High Score: " + db.GetHighScore();
+                            HighScoreLabel.ForeColor = Color.Black;
+                        }
+
+                        HighScoreLabel.Visible = true;
+
                         txtScoreLabel.Text += " Press R to restart the game!";
                         isGameOver = true;
                     }
